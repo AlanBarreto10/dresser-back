@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
@@ -36,7 +36,7 @@ export class AuthService {
       const role = await this.roleRepository.findOne({ where: { type: 'user' } });
 
       if (!role) {
-        throw new Error(`El rol por defecto 'user' no existe en la base de datos.`);
+        throw new NotFoundException(`El rol por defecto 'user' no existe en la base de datos.`);
       }
 
       const user = this.userRepository.create({
@@ -98,7 +98,7 @@ export class AuthService {
       const role = await this.roleRepository.findOne({ where: { type: 'user' } });
 
       if (!role) {
-        throw new Error(`El rol por defecto 'user' no existe en la base de datos.`);
+        throw new NotFoundException(`El rol por defecto 'user' no existe en la base de datos.`);
       }
 
 
@@ -134,14 +134,6 @@ export class AuthService {
     };
   }
 
-  async createRole(createRole: CreateRoleDto) {
-    const role = this.roleRepository.create(createRole);
-
-    await this.roleRepository.save(role);
-
-    return role;
-  }
-
   private handleDBExceptions(error: any): never{
       if(error.code == '23505')
         throw new BadRequestException(error.detail);
@@ -153,6 +145,89 @@ export class AuthService {
     const token = this.jwtService.sign(payload);
     return token;
   }
-  
 
+  //!-------------------------------------------------USERS-------------------------------------------------!//
+
+  async getAllUsers() {
+    const users = await this.userRepository.find();
+    return users;
+  }
+
+  async getUserById(id: string) {
+    const user = await this.userRepository.findOne({ where: {id} });
+    if (!user) {
+      throw new NotFoundException(`El usuario no existe en la base de datos.`);
+    }
+    return user;
+  }
+
+  async deleteUser(id: string) {
+    const user = await this.getUserById(id);
+    await this.userRepository.remove(user);
+  }
+
+  async deleteAllUsers() {
+    const query = this.userRepository.createQueryBuilder('users');
+
+    try {
+      return await query
+        .delete()
+        .where({})
+        .execute();
+
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
+
+  }
+
+  //!-------------------------------------------------ROLES-------------------------------------------------!//
+
+  async getAllRoles() {
+    const roles = await this.roleRepository.find();
+    return roles;
+  }
+
+  async getRoleById(id: string) {
+    const rol = await this.roleRepository.findOne({ where: {id} });
+    if (!rol) {
+      throw new NotFoundException(`El rol no existe en la base de datos.`);
+    }
+    return rol;
+  }
+
+  async createRole(createRole: CreateRoleDto) {
+    try {
+      const role = this.roleRepository.create(createRole);
+      await this.roleRepository.save(role);
+      return role;
+    } catch (error) {
+      this.handleDBExceptions(error)
+    }
+      
+  }
+
+  async deleteRole(id: string) {
+    const rol = await this.getRoleById(id);
+    if (!rol) {
+      throw new NotFoundException(`El rol no existe en la base de datos.`);
+    }
+    await this.roleRepository.remove(rol);
+  }
+
+  async deleteAllRoles() {
+    const query = this.roleRepository.createQueryBuilder('roles');
+
+    try {
+      return await query
+        .delete()
+        .where({})
+        .execute();
+
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
+
+  }
+  
 }

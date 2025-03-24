@@ -1,4 +1,5 @@
-import { IsArray, IsIn, IsInt, IsNumber, IsOptional, IsPositive, IsString, MinLength } from "class-validator";
+import { IsArray, IsEnum, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsPositive, isString, IsString, IsUUID, MinLength } from "class-validator";
+import { Gender } from "../utils/enum_gender";
 
 export class CreateProductDto {
     @IsString()
@@ -18,20 +19,26 @@ export class CreateProductDto {
     @IsOptional()
     slug?: string;
 
-    @IsInt()
-    @IsPositive()
-    @IsOptional()
-    stock?: number;
-
-    @IsString({each: true}) //cada elemento tiene que ser string
-    @IsArray()
-    sizes: string[];
+    @IsEnum(Gender)
+    gender: Gender;
     
-    @IsIn(['men', 'women', 'kid', 'unisex'])
-    gender: string;
+    @IsNumber()
+    @IsNotEmpty()
+    subCategoryId: number;
+
+    @IsNumber()
+    @IsNotEmpty()
+    sizeId: number;
+
+    @IsNumber()
+    @IsNotEmpty()
+    colorId: number;
+
+    @IsUUID()
+    userId: string 
 
     @IsString({ each: true})
     @IsArray()
     @IsOptional()
-    images?: string[]
+    images: string[]
 }

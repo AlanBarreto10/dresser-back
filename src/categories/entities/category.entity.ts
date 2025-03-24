@@ -1,5 +1,6 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Subcategory } from "./subcategory.entity";
+import { Size } from "src/sizes/entities/size.entity";
 
 @Entity('categories')
 export class Category {
@@ -17,4 +18,17 @@ export class Category {
         { cascade: true, nullable: false} 
     )
     subCategories?: Subcategory[];
+
+    @OneToMany(
+        () => Size,
+        (size) => size.category,
+        { cascade: true} 
+    )
+    sizes?: Size[];
+
+    @BeforeInsert()
+    @BeforeUpdate()
+    formatName() {
+        this.name = this.name.toUpperCase().trim();
+    }
 }

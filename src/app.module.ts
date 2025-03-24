@@ -6,6 +6,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductsModule } from './products/products.module';
 import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
+import { CategoriesModule } from './categories/categories.module';
+import { SeedModule } from './seed/seed.module';
+import { SizesModule } from './sizes/sizes.module';
+import { FilesModule } from './files/files.module';
+import { ColorsModule } from './colors/colors.module';
 
 @Module({
   imports: [
@@ -22,7 +27,12 @@ import { AuthModule } from './auth/auth.module';
     }),
     ProductsModule,
     CommonModule,
-    AuthModule
+    AuthModule,
+    CategoriesModule,
+    SeedModule,
+    SizesModule,
+    FilesModule,
+    ColorsModule
   ],
   controllers: [AppController],
   providers: [AppService],

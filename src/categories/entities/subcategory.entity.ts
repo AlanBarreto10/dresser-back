@@ -1,6 +1,6 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Category } from "./category.entity";
-import { Product } from ".";
+import { Product } from "src/products/entities";
 
 @Entity('subcategories')
 export class Subcategory {
@@ -26,5 +26,11 @@ export class Subcategory {
         { cascade: true} 
     )
     products?: Product[];
+
+    @BeforeInsert()
+    @BeforeUpdate()
+    formatName() {
+        this.name = this.name.toUpperCase().trim();
+    }
     
 }

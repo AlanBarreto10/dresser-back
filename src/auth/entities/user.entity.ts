@@ -1,5 +1,5 @@
 import { Product } from "src/products/entities";
-import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Role } from "./role.entity";
 
 @Entity('users')
@@ -26,11 +26,12 @@ export class User {
     })
     isActive: boolean;
 
-    @ManyToOne(
+    @OneToMany(
         () => Product,
-        (product) => product.images,
+        (product) => product.user, 
     )
-    product: Product;
+    products: Product[];
+    
 
     @Column('text', {
         default: 'email'
@@ -43,8 +44,11 @@ export class User {
         (role) => role.users,
         { eager: true }
     )
-    @JoinColumn({ name: 'rol', referencedColumnName: 'type' })
+    @JoinColumn({ name: 'role_id' })
     rol: Role;
+
+    @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+    created_at: Date; 
 
     @BeforeInsert()
     checkFieldsBeforeInsert(){

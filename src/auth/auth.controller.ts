@@ -1,12 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseUUIDPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto, LoginUserDto, CreateRoleDto } from './dto';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from './decorators/get-user.decorator';
 import { User } from './entities/user.entity';
 import { Auth } from './decorators/auth.decorator';
-
-
 
 
 @Controller('auth')
@@ -34,17 +32,57 @@ export class AuthController {
     return this.authService.checkAuthStatus(user)
   }
 
+    //!-----------------USERS--------------------------------!//
+    
+    @Get('users')
+    @Auth('admin')
+    getAllUsers(){
+      return this.authService.getAllUsers();
+    }
+    
+    @Get('users/:id')
+    @Auth('admin')
+    getUserBy(@Param('id', ParseUUIDPipe) id: string) {
+      return this.authService.getUserById(id);
+    }
+  
+    @Delete('users/:id')
+    @Auth('admin')
+    removeUser(@Param('id', ParseUUIDPipe) id: string) {
+      return this.authService.deleteUser(id);
+    }
+
+  //!-----------------ROLES--------------------------------!//
   @Post('new-role')
+  @Auth('admin')
   createRole(@Body() createroleDto: CreateRoleDto ) {
     return this.authService.createRole(createroleDto);
   }
 
-  @Get('private')
-  //@UseGuards(AuthGuard())
-  testingPrivateRoute(@GetUser() user: User){
-    return {
-      ok: true,
-      user
-    }
+  @Get('roles')
+  @Auth('admin')
+  getRoles(){
+    return this.authService.getAllRoles();
   }
+  
+  @Get('roles/:id')
+  @Auth('admin')
+  getBy(@Param('id', ParseUUIDPipe) id: string) {
+    return this.authService.getRoleById(id);
+  }
+
+  @Delete('roles/:id')
+  @Auth('admin')
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.authService.deleteRole(id);
+  }
+
+  // @Get('private')
+  // //@UseGuards(AuthGuard())
+  // testingPrivateRoute(@GetUser() user: User){
+  //   return {
+  //     ok: true,
+  //     user
+  //   }
+  // }
 }
